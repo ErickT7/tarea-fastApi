@@ -6,8 +6,8 @@ from typing import List, Optional, Any
 
 app = FastAPI(
     title="API de Gestión de Items",
-    description="API REST con paginación, PATCH y respuestas JSON con códigos HTTP explícitos",
-    version="2.0"
+    description="API REST con campos title y priority, paginación y respuestas JSON consistentes",
+    version="3.0"
 )
 
 # =====================================================================
@@ -21,16 +21,17 @@ class RespuestaEstandar(BaseModel):
     mensaje: str                 
     datos: Optional[Any] = None  
 
-# Modelo para la creación/actualización del recurso Item
+# Modelo del recurso Item con los nuevos campos solicitados
 class Item(BaseModel):
     id: Optional[int] = None
-    titulo: str
-    descripcion: str
-    completada: bool = False
+    title: str                   # Título del recurso
+    description: str             # Descripción del recurso
+    priority: str                # Prioridad (ej. "alta", "media", "baja")
+    completed: bool = False      # Estado de la tarea/item
 
-# Modelo específico para el método PATCH (solo actualizar el estado)
+# Modelo específico para el método PATCH (para actualizar solo el estado)
 class ActualizarEstadoItem(BaseModel):
-    completada: bool
+    completed: bool
 
 
 # Base de datos en memoria (Simulada)
@@ -76,7 +77,6 @@ def listar_items(
     pag: int = Query(default=1, ge=1, description="Número de página"),
     limit: int = Query(default=10, ge=1, le=100, description="Límite de elementos por página")
 ):
-    # Cálculo de índices para segmentar la lista en memoria
     inicio = (pag - 1) * limit
     fin = inicio + limit
     items_paginados = items_db[inicio:fin]
@@ -124,8 +124,8 @@ def crear_recurso(item: Item):
 def actualizar_estado_recurso(item_id: int, datos_actualizados: ActualizarEstadoItem):
     for index, item in enumerate(items_db):
         if item["id"] == item_id:
-            # Modificamos únicamente la propiedad 'completada'
-            items_db[index]["completada"] = datos_actualizados.completada
+            # Modificamos únicamente el estado 'completed'
+            items_db[index]["completed"] = datos_actualizados.completed
             return {
                 "codigo": 200,
                 "estado": "exito",
