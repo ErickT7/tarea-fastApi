@@ -1,43 +1,46 @@
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, HTTPException, Request, Query, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 from typing import List, Optional, Any
 
 app = FastAPI(
-    title="API de Gestión de Tareas",
-    description="API REST con códigos HTTP explícitos en la respuesta JSON",
-    version="1.0"
+    title="API de Gestión de Items",
+    description="API REST con paginación, PATCH y respuestas JSON con códigos HTTP explícitos",
+    version="2.0"
 )
 
 # =====================================================================
 # 1. MODELOS DE DATOS (Pydantic)
 # =====================================================================
 
-# Estructura unificada que incluye el código HTTP explícito
+# Estructura unificada para todas las respuestas
 class RespuestaEstandar(BaseModel):
-    codigo: int                  # Ejemplo: 200, 201, 400, 404
+    codigo: int                  
     estado: str                  # "exito" o "error"
-    mensaje: str                 # Mensaje descriptivo
-    datos: Optional[Any] = None  # Carga útil de datos o null
+    mensaje: str                 
+    datos: Optional[Any] = None  
 
-# Modelo del recurso Tarea
-class Tarea(BaseModel):
+# Modelo para la creación/actualización del recurso Item
+class Item(BaseModel):
     id: Optional[int] = None
     titulo: str
     descripcion: str
     completada: bool = False
 
+# Modelo específico para el método PATCH (solo actualizar el estado)
+class ActualizarEstadoItem(BaseModel):
+    completada: bool
+
 
 # Base de datos en memoria (Simulada)
-tareas_db = []
+items_db = []
 
 
 # =====================================================================
-# 2. MANEJADORES GLOBALES DE ERRORES (Estructura consistente)
+# 2. MANEJADORES GLOBALES DE ERRORES (Código 400 y 404)
 # =====================================================================
 
-# Captura errores HTTP manuales (como el 404)
 @app.exception_handler(HTTPException)
 async def manejador_errores_http(request: Request, exc: HTTPException):
     return JSONResponse(
@@ -50,7 +53,6 @@ async def manejador_errores_http(request: Request, exc: HTTPException):
         }
     )
 
-# Captura errores de validación de datos (Mapea automáticamente a un código 400 Bad Request)
 @app.exception_handler(RequestValidationError)
 async def manejador_errores_validacion(request: Request, exc: RequestValidationError):
     return JSONResponse(
@@ -58,77 +60,76 @@ async def manejador_errores_validacion(request: Request, exc: RequestValidationE
         content={
             "codigo": 400,
             "estado": "error",
-            "mensaje": "Datos de entrada inválidos o faltantes",
-            "datos": exc.errors()  # Muestra qué campo falló (ej. título faltante)
+            "mensaje": "Datos de entrada inválidos, faltantes o de tipo incorrecto",
+            "datos": exc.errors()
         }
     )
 
 
 # =====================================================================
-# 3. ENDPOINTS CON CÓDIGOS HTTP EN EL JSON
+# 3. ENDPOINTS REQUERIDOS
 # =====================================================================
 
-# [POST] Crear tarea -> Retorna Código 201 (Created)
-@app.post("/tareas/", response_model=RespuestaEstandar, status_code=201)
-def crear_tarea(tarea: Tarea):
-    nueva_id = len(tareas_db) + 1
-    tarea.id = nueva_id
-    tareas_db.append(tarea.dict())
+# [GET] /items - Lista de recursos con paginación opcional (?pag=1&limit=10)
+@app.get("/items", response_model=RespuestaEstandar)
+def listar_items(
+    pag: int = Query(default=1, ge=1, description="Número de página"),
+    limit: int = Query(default=10, ge=1, le=100, description="Límite de elementos por página")
+):
+    # Cálculo de índices para segmentar la lista en memoria
+    inicio = (pag - 1) * limit
+    fin = inicio + limit
+    items_paginados = items_db[inicio:fin]
+    
+    return {
+        "codigo": 200,
+        "estado": "exito",
+        "mensaje": f"Listado obtenido (Página {pag}, Límite {limit})",
+        "datos": {
+            "items": items_paginados,
+            "total_items": len(items_db),
+            "pagina_actual": pag,
+            "limite_por_pagina": limit
+        }
+    }
+
+# [GET] /items/:id - Obtener recurso por ID
+@app.get("/items/{item_id}", response_model=RespuestaEstandar)
+def obtener_item_por_id(item_id: int):
+    item = next((i for i in items_db if i["id"] == item_id), None)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"El recurso con ID {item_id} no existe")
+    return {
+        "codigo": 200,
+        "estado": "exito",
+        "mensaje": "Recurso encontrado",
+        "datos": item
+    }
+
+# [POST] /items - Crear un recurso (Retorna 201 Created)
+@app.post("/items", response_model=RespuestaEstandar, status_code=201)
+def crear_recurso(item: Item):
+    nueva_id = len(items_db) + 1
+    item.id = nueva_id
+    items_db.append(item.dict())
     return {
         "codigo": 201,
         "estado": "exito",
-        "mensaje": "Tarea creada correctamente",
-        "datos": tarea
+        "mensaje": "Recurso creado correctamente",
+        "datos": item
     }
 
-# [GET] Obtener todas -> Retorna Código 200 (OK)
-@app.get("/tareas/", response_model=RespuestaEstandar)
-def obtener_tareas():
-    return {
-        "codigo": 200,
-        "estado": "exito",
-        "mensaje": "Listado de tareas obtenido con éxito",
-        "datos": tareas_db
-    }
-
-# [GET] Obtener una por ID -> Retorna Código 200 (OK) o 404 (Not Found)
-@app.get("/tareas/{tarea_id}", response_model=RespuestaEstandar)
-def obtener_tarea(tarea_id: int):
-    tarea = next((t for t in tareas_db if t["id"] == tarea_id), None)
-    if not tarea:
-        raise HTTPException(status_code=404, detail=f"La tarea con ID {tarea_id} no existe")
-    return {
-        "codigo": 200,
-        "estado": "exito",
-        "mensaje": "Tarea encontrada",
-        "datos": tarea
-    }
-
-# [PUT] Actualizar -> Retorna Código 200 (OK) o 404 (Not Found)
-@app.put("/tareas/{tarea_id}", response_model=RespuestaEstandar)
-def actualizar_tarea(tarea_id: int, tarea_actualizada: Tarea):
-    for index, tarea in enumerate(tareas_db):
-        if tarea["id"] == tarea_id:
-            tarea_actualizada.id = tarea_id
-            tareas_db[index] = tarea_actualizada.dict()
+# [PATCH] /items/:id - Actualizar únicamente el estado del recurso
+@app.patch("/items/{item_id}", response_model=RespuestaEstandar)
+def actualizar_estado_recurso(item_id: int, datos_actualizados: ActualizarEstadoItem):
+    for index, item in enumerate(items_db):
+        if item["id"] == item_id:
+            # Modificamos únicamente la propiedad 'completada'
+            items_db[index]["completada"] = datos_actualizados.completada
             return {
                 "codigo": 200,
                 "estado": "exito",
-                "mensaje": "Tarea actualizada correctamente",
-                "datos": tareas_db[index]
+                "mensaje": "Estado del recurso actualizado correctamente",
+                "datos": items_db[index]
             }
-    raise HTTPException(status_code=404, detail=f"No se pudo actualizar. La tarea con ID {tarea_id} no existe")
-
-# [DELETE] Eliminar -> Retorna Código 200 (OK) o 404 (Not Found)
-@app.delete("/tareas/{tarea_id}", response_model=RespuestaEstandar)
-def eliminar_tarea(tarea_id: int):
-    for index, tarea in enumerate(tareas_db):
-        if tarea["id"] == tarea_id:
-            tareas_db.pop(index)
-            return {
-                "codigo": 200,
-                "estado": "exito",
-                "mensaje": "Tarea eliminada correctamente",
-                "datos": {"id_eliminada": tarea_id}
-            }
-    raise HTTPException(status_code=404, detail=f"No se pudo eliminar. La tarea con ID {tarea_id} no existe")
+    raise HTTPException(status_code=404, detail=f"No se pudo actualizar. El recurso con ID {item_id} no existe")
