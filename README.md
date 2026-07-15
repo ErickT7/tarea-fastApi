@@ -66,11 +66,11 @@ La API se ejecutará de forma aislada y expondrá la documentación interactiva 
 
 ---
 
-## 🔌 Documentación Interactiva (Swagger UI)
+## 🔌 Documentación Interactiva (Interfaces Gráficas)
 
-Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directamente con los endpoints desde las interfaces gráficas autogeneradas:
-*   **Swagger UI (Recomendado)**: `http://127.0.0`
-*   **ReDoc**: `http://127.0.0`
+Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directamente con los endpoints desde las interfaces gráficas autogeneradas utilizando las siguientes direcciones completas:
+*   **Swagger UI (Recomendado)**: http://127.0.0
+*   **ReDoc**: http://127.0.0
 
 ### Formato Estándar de las Respuestas JSON
 
@@ -94,7 +94,7 @@ Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directa
 ```json
 {
   "codigo": 400,
-  "estado": "error",
+  "error": "error",
   "mensaje": "Datos de entrada inválidos",
   "datos": [ ... detalles de los campos faltantes ... ]
 }
