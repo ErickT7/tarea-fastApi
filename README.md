@@ -39,7 +39,7 @@ pip install fastapi "uvicorn[standard]" sqlalchemy pytest httpx
 ```bash
 uvicorn main:app --reload
 ```
-*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto estará disponible en: `http://127.0.0.1:8000`
+*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto y su documentación interactiva estarán disponibles directamente en: **`http://127.0.0`**
 
 ### 3. Ejecutar la Suite de Tests Unitarios
 Para comprobar la integridad de los endpoints y las validaciones de seguridad (201 y 400), abre otra ventana de terminal en la carpeta raíz y ejecuta:
@@ -62,7 +62,7 @@ docker build -t api-items .
 ```bash
 docker run -d -p 8000:8000 --name contenedor-api api-items
 ```
-La API se ejecutará de forma aislada y expondrá el puerto `8000` directamente en tu navegador: `http://localhost:8000`
+La API se ejecutará de forma aislada y expondrá la documentación interactiva directamente en tu navegador: **`http://localhost:8000/docs`**
 
 ---
 
@@ -99,4 +99,3 @@ Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directa
   "datos": [ ... detalles de los campos faltantes ... ]
 }
 ```
-
