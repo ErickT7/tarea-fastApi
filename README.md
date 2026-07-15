@@ -39,7 +39,7 @@ pip install fastapi "uvicorn[standard]" sqlalchemy pytest httpx
 ```bash
 uvicorn main:app --reload
 ```
-*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto y su documentación interactiva estarán disponibles directamente en: **`http://127.0.0`**
+*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto y su documentación interactiva estarán disponibles directamente en: **`http://127.0.0.0:8000/docs**
 
 ### 3. Ejecutar la Suite de Tests Unitarios
 Para comprobar la integridad de los endpoints y las validaciones de seguridad (201 y 400), abre otra ventana de terminal en la carpeta raíz y ejecuta:
@@ -69,8 +69,8 @@ La API se ejecutará de forma aislada y expondrá la documentación interactiva 
 ## 🔌 Documentación Interactiva (Interfaces Gráficas)
 
 Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directamente con los endpoints desde las interfaces gráficas autogeneradas utilizando las siguientes direcciones completas:
-*   **Swagger UI (Recomendado)**: http://127.0.0
-*   **ReDoc**: http://127.0.0
+*   **Swagger UI (Recomendado)**: http://127.0.0.0:8000/docs
+*   **ReDoc**: http://127.0.0.0:8000/docs
 
 ### Formato Estándar de las Respuestas JSON
 
