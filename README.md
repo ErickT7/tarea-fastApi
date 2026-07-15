@@ -1,6 +1,6 @@
 # 🚀 API REST de Gestión de Items
 
-Una solución API REST empresarial, robusta y consistente construida con **Python** y **FastAPI**. El proyecto gestiona un recurso de ítems utilizando almacenamiento persistente relacional, validaciones estrictas, paginación avanzada, suite de pruebas unitarias y empaquetado en contenedores Docker.
+Una solución API REST empresarial, robusta y consistente construida con **Python** y **FastAPI**. El proyecto gestiona un recurso de ítems utilizando almacenamiento persistente relacional, validaciones estrictas, paginación avanzada y una suite de pruebas unitarias.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -17,9 +17,8 @@ Una solución API REST empresarial, robusta y consistente construida con **Pytho
 
 *   💾 **Persistencia Relacional**: Los datos se guardan físicamente en un archivo `items_database.db` mediante transacciones SQL estructuradas (fácilmente intercambiable por PostgreSQL o MySQL).
 *   📦 **Estructura de Respuesta Consistente**: Formato unificado de respuestas JSON (`codigo`, `estado`, `mensaje`, `datos`) tanto para respuestas exitosas como para excepciones del sistema.
-*   🚦 **Códigos HTTP Explícitos**: Control nativo de códigos de estado (200, 201, 400, 401, 404) devueltos en las cabeceras y en el cuerpo del JSON.
+*   🚦 **Códigos HTTP Explícitos**: Control nativo de códigos de estado (200, 201, 400, 404) devueltos en las cabeceras y en el cuerpo del JSON.
 *   📑 **Paginación en Base de Datos**: Segmentación de registros mediante parámetros query (`?pag=1&limit=10`) ejecutados con sentencias SQL `OFFSET` y `LIMIT`.
-*   🛡️ **Seguridad Básica**: Simulación de protección de rutas (401 Unauthorized) mediante cabeceras Bearer Token.
 
 ---
 
@@ -43,7 +42,7 @@ uvicorn main:app --reload
 *Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto estará disponible en: `http://127.0.0.1:8000`
 
 ### 3. Ejecutar la Suite de Tests Unitarios
-Para comprobar la integridad de los endpoints y las validaciones de seguridad (201, 400 y 401), abre otra ventana de terminal en la carpeta raíz y ejecuta:
+Para comprobar la integridad de los endpoints y las validaciones de seguridad (201 y 400), abre otra ventana de terminal en la carpeta raíz y ejecuta:
 ```bash
 pytest
 ```
@@ -100,3 +99,4 @@ Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directa
   "datos": [ ... detalles de los campos faltantes ... ]
 }
 ```
+
