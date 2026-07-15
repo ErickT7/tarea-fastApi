@@ -1,84 +1,102 @@
-\# 🚀 API REST de Gestión de Items (Con Persistencia)
+# 🚀 API REST de Gestión de Items
 
+Una solución API REST empresarial, robusta y consistente construida con **Python** y **FastAPI**. El proyecto gestiona un recurso de ítems utilizando almacenamiento persistente relacional, validaciones estrictas, paginación avanzada, suite de pruebas unitarias y empaquetado en contenedores Docker.
 
+## 🛠️ Tecnologías Utilizadas
 
-Una solución API REST robusta y consistente construida con \*\*Python\*\* y \*\*FastAPI\*\*. El proyecto gestiona un recurso de ítems utilizando almacenamiento persistente relacional.
+*   **Python 3.10+**
+*   **FastAPI**: Framework web moderno de alto rendimiento.
+*   **SQLAlchemy**: ORM para el mapeo objeto-relacional.
+*   **SQLite**: Motor de base de datos embebido para persistencia relacional real.
+*   **Pytest & HTTPX**: Suite para pruebas unitarias y de integración.
+*   **Docker**: Dockerización completa para despliegues portátiles.
 
+---
 
+## 📋 Características Principales
 
-\## 🛠️ Tecnologías Utilizadas
+*   💾 **Persistencia Relacional**: Los datos se guardan físicamente en un archivo `items_database.db` mediante transacciones SQL estructuradas (fácilmente intercambiable por PostgreSQL o MySQL).
+*   📦 **Estructura de Respuesta Consistente**: Formato unificado de respuestas JSON (`codigo`, `estado`, `mensaje`, `datos`) tanto para respuestas exitosas como para excepciones del sistema.
+*   🚦 **Códigos HTTP Explícitos**: Control nativo de códigos de estado (200, 201, 400, 401, 404) devueltos en las cabeceras y en el cuerpo del JSON.
+*   📑 **Paginación en Base de Datos**: Segmentación de registros mediante parámetros query (`?pag=1&limit=10`) ejecutados con sentencias SQL `OFFSET` y `LIMIT`.
+*   🛡️ **Seguridad Básica**: Simulación de protección de rutas (401 Unauthorized) mediante cabeceras Bearer Token.
 
+---
 
+## ⚙️ Instrucciones de Ejecución Local (Sin Docker)
 
-\*   \*\*Python 3.10+\*\*
+Sigue estos pasos en tu terminal (`CMD` o PowerShell) para levantar el entorno de desarrollo:
 
-\*   \*\*FastAPI\*\*: Framework web moderno de alto rendimiento.
+### 1. Activar el Entorno Virtual e Instalar Dependencias
+```cmd
+:: Acceder a la carpeta del proyecto
+cd C:\prueba
 
-\*   \*\*SQLAlchemy\*\*: ORM para mapeo objeto-relacional.
+:: Instalar todos los paquetes requeridos
+pip install fastapi "uvicorn[standard]" sqlalchemy pytest httpx
+```
 
-\*   \*\*SQLite\*\*: Motor de base de datos embebido y portátil (Persistencia real).
+### 2. Iniciar el Servidor de Desarrollo
+```bash
+uvicorn main:app --reload
+```
+*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto estará disponible en: `http://127.0.0.1:8000`
 
-\*   \*\*Uvicorn\*\*: Servidor ASGI para la ejecución del entorno.
+### 3. Ejecutar la Suite de Tests Unitarios
+Para comprobar la integridad de los endpoints y las validaciones de seguridad (201, 400 y 401), abre otra ventana de terminal en la carpeta raíz y ejecuta:
+```bash
+pytest
+```
 
-\*   \*\*Pydantic\*\*: Validación estricta de esquemas.
+---
 
+## 🐳 Instrucciones de Ejecución con Docker
 
+Si tienes Docker instalado y deseas levantar la aplicación de forma aislada y contenerizada, ejecuta los siguientes comandos en la raíz del proyecto:
 
-\---
+### 1. Construir la Imagen de Docker
+```bash
+docker build -t api-items .
+```
 
+### 2. Levantar el Contenedor
+```bash
+docker run -d -p 8000:8000 --name contenedor-api api-items
+```
+La API se ejecutará de forma aislada y expondrá el puerto `8000` directamente en tu navegador: `http://localhost:8000`
 
+---
 
-\## 📋 Características Principales
+## 🔌 Documentación Interactiva (Swagger UI)
 
+Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directamente con los endpoints desde las interfaces gráficas autogeneradas:
+*   **Swagger UI (Recomendado)**: `http://127.0.0`
+*   **ReDoc**: `http://127.0.0`
 
+### Formato Estándar de las Respuestas JSON
 
-\*   💾 \*\*Persistencia Relacional Real\*\*: Los datos se guardan físicamente en un archivo `items\_database.db` mediante transacciones SQL estructuradas (fácilmente migorable a PostgreSQL).
+**Éxito al crear un recurso (POST 201):**
+```json
+{
+  "codigo": 201,
+  "estado": "exito",
+  "mensaje": "Recurso guardado en base de datos correctamente",
+  "datos": {
+    "id": 1,
+    "title": "Escribir pruebas",
+    "description": "Implementar pytest",
+    "priority": "alta",
+    "completed": false
+  }
+}
+```
 
-\*   📦 \*\*Estructura de Respuesta Consistente\*\*: Formato unificado para éxitos y errores de red.
-
-\*   🚦 \*\*Códigos HTTP Explícitos\*\*: Códigos integrados (200, 201, 400, 401, 404) dentro del cuerpo del JSON.
-
-\*   📑 \*\*Paginación Basada en Base de Datos\*\*: Segmentación de registros mediante sentencias SQL `OFFSET` y `LIMIT`.
-
-
-
-\---
-
-
-
-\## ⚙️ Instalación y Configuración Local
-
-
-
-1\. Accede a la carpeta de tu proyecto:
-
-&#x20;  ```bash
-
-&#x20;  cd C:\\prueba
-
-&#x20;  ```
-
-
-
-2\. Activa tu entorno virtual e instala las dependencias:
-
-&#x20;  ```bash
-
-&#x20;  pip install fastapi "uvicorn\[standard]" sqlalchemy
-
-&#x20;  ```
-
-
-
-3\. Inicia el servidor de desarrollo:
-
-&#x20;  ```bash
-
-&#x20;  uvicorn main:app --reload
-
-&#x20;  ```
-
-&#x20;  \*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items\_database.db` con sus respectivas tablas.\*
-
-
-
+**Error por datos faltantes (Bad Request 400):**
+```json
+{
+  "codigo": 400,
+  "estado": "error",
+  "mensaje": "Datos de entrada inválidos",
+  "datos": [ ... detalles de los campos faltantes ... ]
+}
+```
