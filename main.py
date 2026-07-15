@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Query, status, Header, Depends
+from fastapi import FastAPI, HTTPException, Request, Query, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
@@ -10,11 +10,9 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 app = FastAPI(
     title="API de Gestión de Items",
-    description="API REST con persistencia en SQLite",
-    version="6.0"
+    description="API REST con persistencia en SQLite, paginación y respuestas consistentes (Acceso Público)",
+    version="7.0"
 )
-
-TOKEN_SECRETO = "mi_token_secreto_123"
 
 # Configuración de SQLite
 DATABASE_URL = "sqlite:///./items_database.db"
@@ -58,7 +56,7 @@ class ItemSchema(BaseModel):
 class ActualizarEstadoItem(BaseModel):
     completed: bool
 
-# Manejadores de Errores
+# Manejadores de Errores (Códigos 400 y 404)
 @app.exception_handler(HTTPException)
 async def manejador_errores_http(request: Request, exc: HTTPException):
     return JSONResponse(
@@ -73,17 +71,7 @@ async def manejador_errores_validacion(request: Request, exc: RequestValidationE
         content={"codigo": 400, "estado": "error", "mensaje": "Datos de entrada inválidos", "datos": jsonable_encoder(exc.errors())}
     )
 
-def verificar_autenticacion(authorization: Optional[str] = Header(None)):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Falta la cabecera de autenticación")
-    try:
-        tipo_token, token = authorization.split(" ")
-        if tipo_token.lower() != "bearer" or token != TOKEN_SECRETO:
-            raise ValueError()
-    except (ValueError, AttributeError):
-        raise HTTPException(status_code=401, detail="Token inválido")
-
-# Endpoints
+# Endpoints Públicos
 @app.get("/items", response_model=RespuestaEstandar)
 def listar_items(pag: int = Query(default=1, ge=1), limit: int = Query(default=10, ge=1), db: Session = Depends(get_db)):
     offset = (pag - 1) * limit
@@ -101,9 +89,9 @@ def obtener_item_por_id(item_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No existe")
     return {"codigo": 200, "estado": "exito", "mensaje": "Encontrado", "datos": jsonable_encoder(item)}
 
+# [POST] /items - Ahora es público (Se removió la validación)
 @app.post("/items", response_model=RespuestaEstandar, status_code=201)
-def crear_recurso(item: ItemSchema, authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
-    verificar_autenticacion(authorization)
+def crear_recurso(item: ItemSchema, db: Session = Depends(get_db)):
     nuevo_item = DBItem(title=item.title, description=item.description, priority=item.priority, completed=item.completed)
     db.add(nuevo_item)
     db.commit()
