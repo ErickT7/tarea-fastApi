@@ -1,6 +1,6 @@
 # 🚀 API REST de Gestión de Items
 
-Una solución API REST empresarial, robusta y consistente construida con **Python** y **FastAPI**. El proyecto gestiona un recurso de ítems utilizando almacenamiento persistente relacional, validaciones estrictas, paginación avanzada y una suite de pruebas unitarias.
+Una solución API REST empresarial, robusta y consistente construida con **Python** y **FastAPI**. El proyecto gestiona un recurso de ítems utilizando almacenamiento permanente relacional, validaciones estrictas, paginación avanzada y una suite de pruebas unitarias.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -39,7 +39,7 @@ pip install fastapi "uvicorn[standard]" sqlalchemy pytest httpx
 ```bash
 uvicorn main:app --reload
 ```
-*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto y su documentación interactiva estarán disponibles directamente en: **`http://127.0.0.0:8000/docs**
+*Nota: Al levantar el servidor, el ORM creará de forma automática el archivo `items_database.db` con sus respectivas tablas.* El proyecto y su documentación interactiva estarán disponibles directamente en la URL correcta: http://127.0.0.1:8000/docs
 
 ### 3. Ejecutar la Suite de Tests Unitarios
 Para comprobar la integridad de los endpoints y las validaciones de seguridad (201 y 400), abre otra ventana de terminal en la carpeta raíz y ejecuta:
@@ -62,15 +62,16 @@ docker build -t api-items .
 ```bash
 docker run -d -p 8000:8000 --name contenedor-api api-items
 ```
-La API se ejecutará de forma aislada y expondrá la documentación interactiva directamente en tu navegador: **`http://localhost:8000/docs`**
+La API se ejecutará de forma aislada y expondrá la documentación interactiva directamente en tu navegador en la URL: http://localhost:8000/docs
 
 ---
 
 ## 🔌 Documentación Interactiva (Interfaces Gráficas)
 
-Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directamente con los endpoints desde las interfaces gráficas autogeneradas utilizando las siguientes direcciones completas:
-*   **Swagger UI (Recomendado)**: http://127.0.0.0:8000/docs
-*   **ReDoc**: http://127.0.0.0:8000/docs
+Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directamente con los endpoints desde las interfaces gráficas autogeneradas utilizando los siguientes enlaces directos y corregidos con la IP local exacta:
+
+*   **Interfaz de usuario Swagger (recomendado)**: http://127.0.0.1:8000/docs
+*   **ReDoc**: http://127.0.0
 
 ### Formato Estándar de las Respuestas JSON
 
@@ -94,7 +95,7 @@ Con el servidor corriendo (ya sea local o en Docker), puedes interactuar directa
 ```json
 {
   "codigo": 400,
-  "error": "error",
+  "estado": "error",
   "mensaje": "Datos de entrada inválidos",
   "datos": [ ... detalles de los campos faltantes ... ]
 }
